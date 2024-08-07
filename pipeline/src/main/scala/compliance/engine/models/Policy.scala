@@ -82,3 +82,8 @@ case class PolicyViolationNotice(
                                   noticeType: String,
                                   timestamp: Long
                                 )
+
+case class PolicyMatchKey(
+                           policyId: UUID,
+                           vehicleId: UUID
+                         )

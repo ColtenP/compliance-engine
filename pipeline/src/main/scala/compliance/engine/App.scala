@@ -1,7 +1,7 @@
 package compliance.engine
 
 import compliance.engine.models.PolicyType.Speed
-import compliance.engine.models.{VehicleEvent, VehicleEventPolicyMatch}
+import compliance.engine.models.{PolicyMatchKey, VehicleEvent, VehicleEventPolicyMatch}
 import compliance.engine.process.{ProcessSpeedCompliance, VehicleEventPolicyMatcher}
 import compliance.engine.sources.{PolicyGenerator, VehicleEventGenerator}
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment
@@ -23,7 +23,7 @@ object App {
 
       val speedViolations = policyEventMatches
         .filter(_.policy.policyType == Speed)
-        .keyBy((policyMatch: VehicleEventPolicyMatch) => (policyMatch.policy.id, policyMatch.vehicleEvent.map(_.vehicleId).get))
+        .keyBy((policyMatch: VehicleEventPolicyMatch) => PolicyMatchKey(policyMatch.policy.id, policyMatch.vehicleEvent.map(_.vehicleId).get))
         .process(new ProcessSpeedCompliance)
 
       speedViolations.print()
