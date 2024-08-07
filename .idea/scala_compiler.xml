@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ScalaCompilerConfiguration">
+    <option name="incrementalityType" value="IDEA" />
+    <profile name="Gradle 1" modules="compliance-engine.app.main,compliance-engine.app.test,compliance-engine.list.main,compliance-engine.list.test,compliance-engine.utilities.main,compliance-engine.utilities.test">
+      <option name="deprecationWarnings" value="true" />
+      <option name="uncheckedWarnings" value="true" />
+    </profile>
+    <profile name="Gradle 2" modules="compliance-engine.pipeline.main,compliance-engine.pipeline.test">
+      <option name="deprecationWarnings" value="true" />
+      <option name="uncheckedWarnings" value="true" />
+      <parameters>
+        <parameter value="-release:11" />
+      </parameters>
+    </profile>
+  </component>
+</project>
