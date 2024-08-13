@@ -96,6 +96,8 @@ class ProcessSpeedCompliance extends KeyedProcessFunction[PolicyMatchKey, Vehicl
             )
           )
         }
+
+        violationState.clear()
     }
   }
 }
