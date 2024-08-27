@@ -42,27 +42,5 @@ object Constants {
       matches = Some(ScooterPolicyMatch),
       supersedes = Set.empty
     )
-
-    val CityParkScooterCountPolicy: Policy = Policy(
-      id = UUID.randomUUID(),
-      name = "City Park Scooter Count Policy",
-      description = "Sets number of allowed scooters in the City Park to be 100",
-      policyType = PolicyType.Count,
-      rules = List(
-        PolicyRule(
-          id = UUID.randomUUID(),
-          name = "Count",
-          policyType = PolicyType.Count,
-          units = Some("devices"),
-          minimum = None,
-          maximum = Some(100.0),
-          zones = Set(CityParkZoneId)
-        )
-      ),
-      startsAt = Some(0),
-      endsAt = None,
-      matches = Some(ScooterPolicyMatch),
-      supersedes = Set.empty
-    )
   }
 }

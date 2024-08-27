@@ -89,18 +89,6 @@ class VehicleEventPolicyMatcher(deviceTimeout: Duration = Duration.ofDays(2))
 
     ctx.getBroadcastState(POLICY_STATE_DESCRIPTOR).put(policy.id, policy)
 
-    // If the policy is a type of count minimum, then we need to emit a match with no vehicle event so the
-    // validation engine can emit compliance violations if there are not enough vehicles to fill the policy
-    if (policy.isCountMinimum) {
-      out.collect(
-        VehicleEventPolicyMatch(
-          matchType = PolicyMatchType.Matched,
-          vehicleEvent = None,
-          policy = policy
-        )
-      )
-    }
-
     val matchedVehicles = mutable.Set[UUID]()
 
     ctx.applyToKeyedState(VEHICLE_EVENT_STATE_DESCRIPTOR, (vehicleId: UUID, state: ValueState[VehicleEvent]) => {

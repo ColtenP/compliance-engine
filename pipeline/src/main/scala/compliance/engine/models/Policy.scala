@@ -1,6 +1,6 @@
 package compliance.engine.models
 
-import compliance.engine.models.PolicyType.{Count, Speed, Time}
+import compliance.engine.models.PolicyType.{Speed, Time}
 
 import java.util.UUID
 
@@ -17,10 +17,18 @@ case class Policy(
                  ) {
   def isValid: Boolean = rules.nonEmpty && rules.forall(rule => rule.isValid && rule.policyType == policyType)
 
-  def isCountMinimum: Boolean = rules.exists(rule => rule.policyType == Count && rule.minimum.nonEmpty)
-
   def doesVehicleEventMatch(vehicleEvent: VehicleEvent): Boolean =
     rules.exists(_.zones.intersect(vehicleEvent.zones).nonEmpty)
+
+  def findFirstRuleInViolation(vehicleEvent: Option[VehicleEvent]): Option[UUID] =
+    policyType match {
+      case "Speed" =>
+        rules.find { rule =>
+          rule.maximum.exists(_ >= vehicleEvent.map(_.speed).getOrElse(Double.MinValue)) ||
+            rule.minimum.exists(_ <= vehicleEvent.map(_.speed).getOrElse(Double.MaxValue))
+        }.map(_.id)
+      case _ => None
+    }
 }
 
 case class PolicyMatch(vehicleTypes: Set[String] = Set.empty)
@@ -32,7 +40,6 @@ object VehicleType {
 }
 
 object PolicyType {
-  val Count = "Count"
   val Speed = "Speed"
   val Time = "Time"
 }
@@ -49,8 +56,6 @@ case class PolicyRule(
                        zones: Set[UUID] = Set.empty
                      ) {
   def isValid: Boolean = policyType match {
-    case Count =>
-      units.isEmpty || units.exists(_.equalsIgnoreCase("devices"))
     case Speed =>
       units.exists(Set("mph", "kph").contains(_))
     case Time =>
@@ -82,6 +87,13 @@ case class PolicyViolationNotice(
                                   noticeType: String,
                                   timestamp: Long
                                 )
+
+case class PolicyViolation(
+                            policyId: UUID,
+                            vehicleId: UUID,
+                            start: Long,
+                            end: Long
+                          )
 
 case class PolicyMatchKey(
                            policyId: UUID,
