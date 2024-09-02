@@ -1,4 +1,4 @@
-package compliance.engine.window.speed
+package compliance.engine.window.time
 
 import compliance.engine.models.{PolicyMatchKey, PolicyViolation, VehiclePolicyMatchUpdate}
 import compliance.engine.traits.Loggable
@@ -9,7 +9,7 @@ import org.apache.flink.util.Collector
 import java.lang
 import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 
-class SpeedViolationProcessWindowFunction
+class TimeViolationProcessWindowFunction
   extends ProcessWindowFunction[VehiclePolicyMatchUpdate, PolicyViolation, PolicyMatchKey, TimeWindow]
     with Loggable {
   def process(
@@ -24,11 +24,10 @@ class SpeedViolationProcessWindowFunction
     if (matches.isEmpty) return
 
     val startOption = matches
-      .find(m => m.policy.findFirstRuleInViolation(m.vehicleEvent).isDefined)
+      .headOption
       .map(_.vehicleEvent.timestamp)
     val endOption = matches
-      .reverse
-      .find(m => m.policy.findFirstRuleInViolation(m.vehicleEvent).isDefined)
+      .lastOption
       .map(_.vehicleEvent.timestamp)
 
     if (startOption.isDefined && endOption.isDefined) {
@@ -36,12 +35,22 @@ class SpeedViolationProcessWindowFunction
       val end = endOption.get
 
       if (start <= end) {
-        out.collect(PolicyViolation(
-          policyId = key.policyId,
-          vehicleId = key.vehicleId,
-          start = context.window().getStart,
-          end = context.window().getEnd
-        ))
+        val duration = end - start
+
+        // If no rule was violated, then there's no violation
+        val violatedRule = matches.head.policy.rules.find { rule =>
+          rule.minimum.exists(_ > duration) ||
+            rule.maximum.exists(_ < duration)
+        }
+
+        if (violatedRule.nonEmpty) {
+          out.collect(PolicyViolation(
+            policyId = key.policyId,
+            vehicleId = key.vehicleId,
+            start = context.window().getStart,
+            end = context.window().getEnd
+          ))
+        }
       } else {
         LOGGER.warn(s"The start violation is not less than the end violation, $start >= $end")
       }

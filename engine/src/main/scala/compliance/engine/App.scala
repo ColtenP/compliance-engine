@@ -1,11 +1,11 @@
 package compliance.engine
 
-import compliance.engine.models.PolicyType.Speed
-import compliance.engine.models.{PolicyMatchKey, VehicleEvent, VehicleEventPolicyMatch}
+import compliance.engine.models.PolicyType.{Speed, Time => TimePolicyType}
+import compliance.engine.models.{PolicyMatchKey, PolicyType, VehicleEvent, VehiclePolicyMatchUpdate}
 import compliance.engine.process.VehicleEventPolicyMatcher
 import compliance.engine.sources.{PolicyGenerator, VehicleEventGenerator}
-import compliance.engine.window.ViolationTrigger
-import compliance.engine.window.speed.SpeedViolationProcessWindowFunction
+import compliance.engine.window.speed.{SpeedViolationProcessWindowFunction, SpeedViolationTrigger}
+import compliance.engine.window.time.{TimeViolationProcessWindowFunction, TimeViolationTrigger}
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment
 import org.apache.flink.streaming.api.windowing.assigners.EventTimeSessionWindows
 import org.apache.flink.streaming.api.windowing.time.Time
@@ -28,13 +28,23 @@ object App {
       val speedViolations = policyEventMatches
         .filter(_.policy.policyType == Speed)
         .name("speed-policy-matches")
-        .keyBy((policyMatch: VehicleEventPolicyMatch) => PolicyMatchKey(policyMatch.policy.id, policyMatch.vehicleEvent.map(_.vehicleId).get))
+        .keyBy((policyMatch: VehiclePolicyMatchUpdate) => PolicyMatchKey(policyMatch.policy.id, policyMatch.vehicleEvent.vehicleId))
         .window(EventTimeSessionWindows.withGap(Time.minutes(10)))
-        .trigger(new ViolationTrigger)
+        .trigger(new SpeedViolationTrigger)
         .process(new SpeedViolationProcessWindowFunction)
         .name("speed-violation-session-window")
 
-      speedViolations.print()
+      val timeViolations = policyEventMatches
+        .filter(_.policy.policyType == TimePolicyType)
+        .name("time-policy-matches")
+        .keyBy((policyMatch: VehiclePolicyMatchUpdate) => PolicyMatchKey(policyMatch.policy.id, policyMatch.vehicleEvent.vehicleId))
+        .window(EventTimeSessionWindows.withGap(Time.minutes(10)))
+        .trigger(new TimeViolationTrigger)
+        .process(new TimeViolationProcessWindowFunction)
+        .name("time-violation-session-window")
+
+      speedViolations.print("speed-violations")
+      timeViolations.print("time-violations")
 
       env.execute("Vehicle Event Policy Compliance Engine")
    }

@@ -15,22 +15,17 @@ case class Policy(
                    matches: Option[PolicyMatch],
                    supersedes: Set[UUID] = Set.empty
                  ) {
-  def isValid: Boolean = {
-    if (rules.isEmpty) return false
-    Console.println(rules.length)
-
-    rules.forall(rule => rule.isValid && rule.policyType == policyType)
-  }
+  def isValid: Boolean = rules.nonEmpty && rules.forall(rule => rule.isValid && rule.policyType == policyType)
 
   def doesVehicleEventMatch(vehicleEvent: VehicleEvent): Boolean =
     rules.exists(_.zones.intersect(vehicleEvent.zones).nonEmpty)
 
-  def findFirstRuleInViolation(vehicleEvent: Option[VehicleEvent]): Option[UUID] =
+  def findFirstRuleInViolation(vehicleEvent: VehicleEvent): Option[UUID] =
     policyType match {
       case "Speed" =>
         rules.find { rule =>
-          rule.maximum.exists(_ >= vehicleEvent.map(_.speed).getOrElse(Double.MinValue)) ||
-            rule.minimum.exists(_ <= vehicleEvent.map(_.speed).getOrElse(Double.MaxValue))
+          rule.maximum.exists(_ >= vehicleEvent.speed) ||
+            rule.minimum.exists(_ <= vehicleEvent.speed)
         }.map(_.id)
       case _ => None
     }
@@ -56,8 +51,6 @@ case class PolicyRule(
                        units: Option[String] = None,
                        minimum: Option[Double] = None,
                        maximum: Option[Double] = None,
-                       inclusiveMinimum: Boolean = true,
-                       inclusiveMaximum: Boolean = true,
                        zones: Set[UUID] = Set.empty
                      ) {
   def isValid: Boolean = policyType match {
@@ -68,30 +61,7 @@ case class PolicyRule(
   }
 }
 
-object PolicyMatchType {
-  val Matched = "Matched"
-  val Unmatched = "Unmatched"
-}
-
-case class VehicleEventPolicyMatch(
-                                    matchType: String,
-                                    vehicleEvent: Option[VehicleEvent],
-                                    policy: Policy
-                                  )
-
-object PolicyViolationNoticeType {
-  val Started = "Started"
-  val Ended = "Ended"
-}
-
-case class PolicyViolationNotice(
-                                  policyId: UUID,
-                                  ruleId: UUID,
-                                  vehicleId: Option[UUID],
-                                  slot: Option[Long],
-                                  noticeType: String,
-                                  timestamp: Long
-                                )
+case class VehiclePolicyMatchUpdate(vehicleEvent: VehicleEvent, policy: Policy, matched: Boolean)
 
 case class PolicyViolation(
                             policyId: UUID,

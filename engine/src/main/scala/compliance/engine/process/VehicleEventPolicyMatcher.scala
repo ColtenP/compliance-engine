@@ -1,6 +1,6 @@
 package compliance.engine.process
 
-import compliance.engine.models.{Policy, PolicyMatchType, VehicleEvent, VehicleEventPolicyMatch}
+import compliance.engine.models.{Policy, VehicleEvent, VehiclePolicyMatchUpdate}
 import compliance.engine.process.VehicleEventPolicyMatcher.{MATCHED_POLICY_STATE_DESCRIPTOR, POLICY_STATE_DESCRIPTOR, TIMER_STATE_DESCRIPTOR, VEHICLE_EVENT_STATE_DESCRIPTOR}
 import compliance.engine.traits.Loggable
 import org.apache.flink.api.common.state._
@@ -16,7 +16,7 @@ import scala.collection.mutable
 import scala.util.{Failure, Try}
 
 class VehicleEventPolicyMatcher(deviceTimeout: Duration = Duration.ofDays(2))
-  extends KeyedBroadcastProcessFunction[UUID, VehicleEvent, Policy, VehicleEventPolicyMatch] with Loggable {
+  extends KeyedBroadcastProcessFunction[UUID, VehicleEvent, Policy, VehiclePolicyMatchUpdate] with Loggable {
   @transient private var vehicleEventState: ValueState[VehicleEvent] = _
   @transient private var matchedPolicyState: ListState[UUID] = _
   @transient private var timerState: ValueState[Long] = _
@@ -31,8 +31,8 @@ class VehicleEventPolicyMatcher(deviceTimeout: Duration = Duration.ofDays(2))
 
   def processElement(
                       event: VehicleEvent,
-                      ctx: KeyedBroadcastProcessFunction[UUID, VehicleEvent, Policy, VehicleEventPolicyMatch]#ReadOnlyContext,
-                      out: Collector[VehicleEventPolicyMatch]
+                      ctx: KeyedBroadcastProcessFunction[UUID, VehicleEvent, Policy, VehiclePolicyMatchUpdate]#ReadOnlyContext,
+                      out: Collector[VehiclePolicyMatchUpdate]
                     ): Unit = {
     val matchedPolicies = ctx.getBroadcastState(POLICY_STATE_DESCRIPTOR)
       .immutableEntries()
@@ -49,10 +49,10 @@ class VehicleEventPolicyMatcher(deviceTimeout: Duration = Duration.ofDays(2))
         .flatMap(unmatchedPolicyId => Option(ctx.getBroadcastState(POLICY_STATE_DESCRIPTOR).get(unmatchedPolicyId)))
         .foreach { unmatchedPolicy =>
           out.collect(
-            VehicleEventPolicyMatch(
-              matchType = PolicyMatchType.Unmatched,
-              vehicleEvent = Some(event),
-              policy = unmatchedPolicy
+            VehiclePolicyMatchUpdate(
+              vehicleEvent = event,
+              policy = unmatchedPolicy,
+              matched = false
             )
           )
         }
@@ -61,10 +61,10 @@ class VehicleEventPolicyMatcher(deviceTimeout: Duration = Duration.ofDays(2))
     // For all of the policies that this event matched, emit a matched event
     matchedPolicies.foreach { policy =>
       out.collect(
-        VehicleEventPolicyMatch(
-          matchType = PolicyMatchType.Matched,
-          vehicleEvent = Some(event),
-          policy = policy
+        VehiclePolicyMatchUpdate(
+          vehicleEvent = event,
+          policy = policy,
+          matched = true
         )
       )
     }
@@ -79,8 +79,8 @@ class VehicleEventPolicyMatcher(deviceTimeout: Duration = Duration.ofDays(2))
 
   def processBroadcastElement(
                                policy: Policy,
-                               ctx: KeyedBroadcastProcessFunction[UUID, VehicleEvent, Policy, VehicleEventPolicyMatch]#Context,
-                               out: Collector[VehicleEventPolicyMatch]
+                               ctx: KeyedBroadcastProcessFunction[UUID, VehicleEvent, Policy, VehiclePolicyMatchUpdate]#Context,
+                               out: Collector[VehiclePolicyMatchUpdate]
                              ): Unit = {
     if (!policy.isValid) {
       LOGGER.error(s"Ignoring invalid policy ${policy.id}")
@@ -96,10 +96,10 @@ class VehicleEventPolicyMatcher(deviceTimeout: Duration = Duration.ofDays(2))
         matchedVehicles.add(vehicleId)
 
         out.collect(
-          VehicleEventPolicyMatch(
-            matchType = PolicyMatchType.Matched,
-            vehicleEvent = Some(vehicleEvent),
-            policy = policy
+          VehiclePolicyMatchUpdate(
+            vehicleEvent = vehicleEvent,
+            policy = policy,
+            matched = true
           )
         )
       }
@@ -114,8 +114,8 @@ class VehicleEventPolicyMatcher(deviceTimeout: Duration = Duration.ofDays(2))
 
   override def onTimer(
                         timestamp: Long,
-                        ctx: KeyedBroadcastProcessFunction[UUID, VehicleEvent, Policy, VehicleEventPolicyMatch]#OnTimerContext,
-                        out: Collector[VehicleEventPolicyMatch]
+                        ctx: KeyedBroadcastProcessFunction[UUID, VehicleEvent, Policy, VehiclePolicyMatchUpdate]#OnTimerContext,
+                        out: Collector[VehiclePolicyMatchUpdate]
                       ): Unit = {
     // If a device has not had any activity in the duration of deviceTimeout, then clear its state and unmatch its
     // matched policies
@@ -125,10 +125,10 @@ class VehicleEventPolicyMatcher(deviceTimeout: Duration = Duration.ofDays(2))
       Option(vehicleEventState.value()).foreach { vehicleEvent =>
         matchedPolicyState.get().asScala.foreach { matchedPolicyId =>
           Try(ctx.getBroadcastState(POLICY_STATE_DESCRIPTOR).get(matchedPolicyId)).toOption.foreach { policy =>
-            out.collect(VehicleEventPolicyMatch(
-              matchType = PolicyMatchType.Unmatched,
-              vehicleEvent = Some(vehicleEvent),
-              policy = policy
+            out.collect(VehiclePolicyMatchUpdate(
+              vehicleEvent = vehicleEvent,
+              policy = policy,
+              matched = false
             ))
           }
         }
