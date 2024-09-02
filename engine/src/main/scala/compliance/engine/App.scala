@@ -4,7 +4,8 @@ import compliance.engine.models.PolicyType.Speed
 import compliance.engine.models.{PolicyMatchKey, VehicleEvent, VehicleEventPolicyMatch}
 import compliance.engine.process.VehicleEventPolicyMatcher
 import compliance.engine.sources.{PolicyGenerator, VehicleEventGenerator}
-import compliance.engine.window.speed.{SpeedViolationProcessWindowFunction, SpeedViolationTrigger}
+import compliance.engine.window.ViolationTrigger
+import compliance.engine.window.speed.SpeedViolationProcessWindowFunction
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment
 import org.apache.flink.streaming.api.windowing.assigners.EventTimeSessionWindows
 import org.apache.flink.streaming.api.windowing.time.Time
@@ -29,7 +30,7 @@ object App {
         .name("speed-policy-matches")
         .keyBy((policyMatch: VehicleEventPolicyMatch) => PolicyMatchKey(policyMatch.policy.id, policyMatch.vehicleEvent.map(_.vehicleId).get))
         .window(EventTimeSessionWindows.withGap(Time.minutes(10)))
-        .trigger(new SpeedViolationTrigger)
+        .trigger(new ViolationTrigger)
         .process(new SpeedViolationProcessWindowFunction)
         .name("speed-violation-session-window")
 

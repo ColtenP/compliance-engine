@@ -14,7 +14,7 @@ class PolicyGenerator extends GeneratorFunction[java.lang.Long, Policy] {
 }
 
 object PolicyGenerator {
-  def create(env: StreamExecutionEnvironment, recordsPerSecond: Long = 10, numberOfEvents: Long = 1): DataStreamSource[Policy] = {
+  def create(env: StreamExecutionEnvironment, recordsPerSecond: Double = 10, numberOfEvents: Long = 1): DataStreamSource[Policy] = {
     val source = new DataGeneratorSource[Policy](
       new PolicyGenerator,
       numberOfEvents,

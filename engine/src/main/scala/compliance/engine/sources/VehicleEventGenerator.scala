@@ -41,7 +41,7 @@ class VehicleEventGenerator extends GeneratorFunction[java.lang.Long, VehicleEve
 }
 
 object VehicleEventGenerator {
-  def create(env: StreamExecutionEnvironment, recordsPerSecond: Long = 10, numberOfEvents: Long = Long.MaxValue): DataStreamSource[VehicleEvent] = {
+  def create(env: StreamExecutionEnvironment, recordsPerSecond: Double = 10, numberOfEvents: Long = Long.MaxValue): DataStreamSource[VehicleEvent] = {
     val source = new DataGeneratorSource[VehicleEvent](
       new VehicleEventGenerator,
       numberOfEvents,

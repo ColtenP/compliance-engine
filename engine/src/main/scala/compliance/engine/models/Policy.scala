@@ -15,7 +15,12 @@ case class Policy(
                    matches: Option[PolicyMatch],
                    supersedes: Set[UUID] = Set.empty
                  ) {
-  def isValid: Boolean = rules.nonEmpty && rules.forall(rule => rule.isValid && rule.policyType == policyType)
+  def isValid: Boolean = {
+    if (rules.isEmpty) return false
+    Console.println(rules.length)
+
+    rules.forall(rule => rule.isValid && rule.policyType == policyType)
+  }
 
   def doesVehicleEventMatch(vehicleEvent: VehicleEvent): Boolean =
     rules.exists(_.zones.intersect(vehicleEvent.zones).nonEmpty)

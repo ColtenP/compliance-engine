@@ -11,4 +11,4 @@ plugins {
 }
 
 rootProject.name = "compliance-engine"
-include("pipeline")
+include("engine")

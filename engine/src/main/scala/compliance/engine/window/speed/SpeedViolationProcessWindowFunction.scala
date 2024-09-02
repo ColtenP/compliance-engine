@@ -35,7 +35,10 @@ class SpeedViolationProcessWindowFunction
 
       if (start < end) {
         out.collect(PolicyViolation(
-          policyId = key.policyId, vehicleId = key.vehicleId, start = start, end = end
+          policyId = key.policyId,
+          vehicleId = key.vehicleId,
+          start = context.window().getStart,
+          end = context.window().getEnd
         ))
       } else {
         LOGGER.warn(s"The start violation is not less than the end violation, $start >= $end")
