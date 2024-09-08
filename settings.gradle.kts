@@ -11,4 +11,4 @@ plugins {
 }
 
 rootProject.name = "compliance-engine"
-include("engine", "complex")
+include("sql-join")
