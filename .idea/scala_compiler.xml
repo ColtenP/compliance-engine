@@ -6,7 +6,7 @@
       <option name="deprecationWarnings" value="true" />
       <option name="uncheckedWarnings" value="true" />
     </profile>
-    <profile name="Gradle 2" modules="compliance-engine.compliance-engine.main,compliance-engine.compliance-engine.test,compliance-engine.engine.main,compliance-engine.engine.test,compliance-engine.pipeline.main,compliance-engine.pipeline.test">
+    <profile name="Gradle 2" modules="compliance-engine.complex.main,compliance-engine.complex.test,compliance-engine.compliance-engine.main,compliance-engine.compliance-engine.test,compliance-engine.engine.main,compliance-engine.engine.test,compliance-engine.pipeline.main,compliance-engine.pipeline.test">
       <option name="deprecationWarnings" value="true" />
       <option name="uncheckedWarnings" value="true" />
       <parameters>
