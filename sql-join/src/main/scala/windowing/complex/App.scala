@@ -1,68 +1,44 @@
 package windowing.complex
 
-import org.apache.flink.api.common.functions.MapFunction
-import org.apache.flink.api.common.typeinfo.Types
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment
-import org.apache.flink.table.api.Schema
 import org.apache.flink.table.api.bridge.java.StreamTableEnvironment
-import org.apache.flink.types.Row
-import windowing.complex.models.{VehicleEvent, VehicleTelemetry}
-import windowing.complex.sources.{VehicleEventGenerator, VehicleTelemetryGenerator}
 
 object App {
   def main(args: Array[String]): Unit = {
     val env = StreamExecutionEnvironment.getExecutionEnvironment
     val tenv = StreamTableEnvironment.create(env)
 
-    val vehicleEvents = VehicleEventGenerator.toSource(env)
-    val vehicleTelemetry = VehicleTelemetryGenerator.toSource(env)
+    tenv.executeSql(
+      """
+        |CREATE TABLE vehicle_events (
+        |  vehicle_id BIGINT,
+        |  event_type VARCHAR(32),
+        |  event_timestamp TIMESTAMP(3)
+        |) WITH (
+        |  'connector' = 'datagen',
+        |  'rows-per-second' = '20',
+        |  'fields.vehicle_id.kind' = 'sequence',
+        |  'fields.vehicle_id.start' = '1',
+        |  'fields.vehicle_id.end' = '100'
+        |)
+        |""".stripMargin)
 
-    val vehicleEventsRow = vehicleEvents
-      .map((t: VehicleEvent) => Row.of(t.vehicle_id, t.event_type, t.event_timestamp))
-      .returns(Types.ROW_NAMED(
-        List("vehicle_id", "event_type", "event_timestamp").toArray,
-        Types.LONG,
-        Types.STRING,
-        Types.LONG
-      ))
-
-    val vehicleTelemetryRow = vehicleTelemetry
-      .map((t: VehicleTelemetry) => Row.of(t.vehicle_id, t.speed, t.latitude, t.longitude, t.telemetry_timestamp))
-      .returns(Types.ROW_NAMED(
-        List("vehicle_id", "speed", "latitude", "longitude", "telemetry_timestamp").toArray,
-        Types.LONG,
-        Types.DOUBLE,
-        Types.DOUBLE,
-        Types.DOUBLE,
-        Types.LONG
-      ))
-
-    tenv.createTemporaryView(
-      "vehicle_events",
-      tenv.fromDataStream(
-        vehicleEventsRow,
-        Schema
-          .newBuilder()
-          .columnByMetadata("rowtime", "TIMESTAMP_LTZ(3)")
-          .watermark("rowtime", "SOURCE_WATERMARK()")
-          .build()
-      )
-    )
-
-    tenv.createTemporaryView(
-      "vehicle_telemetry",
-      tenv.fromDataStream(
-        vehicleTelemetryRow,
-        Schema
-          .newBuilder()
-          .columnByMetadata("rowtime", "TIMESTAMP_LTZ(3)")
-          .watermark("rowtime", "SOURCE_WATERMARK()")
-          .build()
-      )
-    )
-
-    tenv.from("vehicle_events").printSchema()
-    tenv.from("vehicle_telemetry").printSchema()
+    tenv.executeSql(
+      """
+        |CREATE TABLE vehicle_telemetry (
+        |  vehicle_id BIGINT,
+        |  speed DOUBLE,
+        |  latitude DOUBLE,
+        |  longitude DOUBLE,
+        |  telemetry_timestamp TIMESTAMP(3)
+        |) WITH (
+        |  'connector' = 'datagen',
+        |  'rows-per-second' = '20',
+        |  'fields.vehicle_id.kind' = 'sequence',
+        |  'fields.vehicle_id.start' = '1',
+        |  'fields.vehicle_id.end' = '100'
+        |);
+        |""".stripMargin)
 
     tenv.executeSql(
       """
@@ -78,12 +54,12 @@ object App {
         |    FROM vehicle_events ve, vehicle_telemetry vt
         |    WHERE
         |        ve.vehicle_id = vt.vehicle_id AND
-        |        ve.event_timestamp BETWEEN vt.telemetry_timestamp - 5000 AND vt.telemetry_timestamp
+        |        ve.event_timestamp BETWEEN vt.telemetry_timestamp - INTERVAL '5' SECOND AND vt.telemetry_timestamp
         |)
         |SELECT
         |    vet.*
         |FROM vehicle_event_telemetry vet
-        |WHERE vet.speed IS NOT NULL
+        |WHERE vet.speed IS NOT NULL;
         |""".stripMargin)
   }
 }
