@@ -9,6 +9,7 @@ plugins {
 
 dependencies {
     compileOnly("org.apache.flink:flink-streaming-java:1.17.2")
+    implementation("org.apache.flink:flink-statebackend-rocksdb:1.17.2")
     implementation("org.apache.flink:flink-connector-files:1.17.2")
     implementation("org.apache.flink:flink-connector-datagen:1.17.2")
 

@@ -6,6 +6,7 @@ import compliance.engine.process.VehicleEventPolicyMatcher
 import compliance.engine.sources.FileSourceUtil
 import compliance.engine.window.speed.{SpeedViolationProcessWindowFunction, SpeedViolationTrigger}
 import compliance.engine.window.time.{TimeViolationProcessWindowFunction, TimeViolationTrigger}
+import org.apache.flink.contrib.streaming.state.EmbeddedRocksDBStateBackend
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment
 import org.apache.flink.streaming.api.windowing.assigners.EventTimeSessionWindows
 import org.apache.flink.streaming.api.windowing.time.Time
@@ -13,6 +14,8 @@ import org.apache.flink.streaming.api.windowing.time.Time
 object App {
    def main(args: Array[String]): Unit = {
       val env = StreamExecutionEnvironment.getExecutionEnvironment
+
+      env.setStateBackend(new EmbeddedRocksDBStateBackend())
 
       // Create the Sources to be used
 //      val policies = PolicyGenerator.create(env).broadcast(VehicleEventPolicyMatcher.POLICY_STATE_DESCRIPTOR)
