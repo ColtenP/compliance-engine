@@ -24,8 +24,8 @@ case class Policy(
     policyType match {
       case "Speed" =>
         rules.find { rule =>
-          rule.maximum.exists(_ >= vehicleEvent.speed) ||
-            rule.minimum.exists(_ <= vehicleEvent.speed)
+          rule.maximum.exists(_ <= vehicleEvent.speed) ||
+            rule.minimum.exists(_ >= vehicleEvent.speed)
         }.map(_.id)
       case _ => None
     }

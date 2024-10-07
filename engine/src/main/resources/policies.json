@@ -1,0 +1,102 @@
+[
+  {
+    "id": "1de4332e-e1ae-47c2-937c-89436bf68a63",
+    "name": "Metro Speed Policy",
+    "description": "",
+    "policyType": "Speed",
+    "rules": [
+      {
+        "id": "1de4332e-e1ae-47c2-937c-89436bf68a63",
+        "name": "Speed Limit",
+        "policyType": "Speed",
+        "units": "kph",
+        "maximum": 150.0,
+        "zones": ["0f808591-0b2b-4478-b1e5-8a7d41b5a4b1"]
+      }
+    ],
+    "startsAt": 0,
+    "matches": {
+      "vehicleTypes": ["Car"]
+    }
+  },
+  {
+    "id": "a14be833-b348-4516-b6a8-006b36c41f6f",
+    "name": "Downtown Speed Policy",
+    "description": "",
+    "policyType": "Speed",
+    "rules": [
+      {
+        "id": "a14be833-b348-4516-b6a8-006b36c41f6f",
+        "name": "Speed Limit",
+        "policyType": "Speed",
+        "units": "kph",
+        "maximum": 60.0,
+        "zones": ["e31d2281-6536-4385-a893-4e49612d286d"]
+      }
+    ],
+    "startsAt": 0,
+    "matches": {
+      "vehicleTypes": ["Car"]
+    }
+  },
+  {
+    "id": "905a4e2d-a392-4ffb-ac56-c89bfae20c89",
+    "name": "San Fernando Valley Speed Policy",
+    "description": "",
+    "policyType": "Speed",
+    "rules": [
+      {
+        "id": "905a4e2d-a392-4ffb-ac56-c89bfae20c89",
+        "name": "Speed Limit",
+        "policyType": "Speed",
+        "units": "kph",
+        "maximum": 150.0,
+        "zones": ["d7a6d6ca-84c4-450b-9a88-15ebfa74a02d"]
+      }
+    ],
+    "startsAt": 0,
+    "matches": {
+      "vehicleTypes": ["Car"]
+    }
+  },
+  {
+    "id": "319ee7f9-96d8-4e76-9034-c6279e7cd20d",
+    "name": "San Gabriel Valley Speed Policy",
+    "description": "",
+    "policyType": "Speed",
+    "rules": [
+      {
+        "id": "319ee7f9-96d8-4e76-9034-c6279e7cd20d",
+        "name": "Speed Limit",
+        "policyType": "Speed",
+        "units": "kph",
+        "maximum": 120.0,
+        "zones": ["f7998d01-0026-496b-8634-7682cf71b2eb"]
+      }
+    ],
+    "startsAt": 0,
+    "matches": {
+      "vehicleTypes": ["Car"]
+    }
+  },
+  {
+    "id": "86a93b72-a5ef-4111-9a50-c29123c62ea6",
+    "name": "Gateway Cities Speed Policy",
+    "description": "",
+    "policyType": "Speed",
+    "rules": [
+      {
+        "id": "86a93b72-a5ef-4111-9a50-c29123c62ea6",
+        "name": "Speed Limit",
+        "policyType": "Speed",
+        "units": "kph",
+        "maximum": 100.0,
+        "zones": ["25706ceb-bfcf-4bcf-bfb1-3c5a3b957cbb"]
+      }
+    ],
+    "startsAt": 0,
+    "matches": {
+      "vehicleTypes": ["Car"]
+    }
+  }
+]

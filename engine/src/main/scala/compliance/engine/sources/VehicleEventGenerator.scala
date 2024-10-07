@@ -29,11 +29,7 @@ class VehicleEventGenerator extends GeneratorFunction[java.lang.Long, VehicleEve
       id = UUID.randomUUID(),
       vehicleId = vehicle._1,
       vehicleType = vehicle._2,
-      zones = Random.nextInt(100) match {
-        case value if value < 50 => Constants.Zones.CityPark
-        case value if value < 80 => Constants.Zones.Downtown
-        case _ => Constants.Zones.MetroArea
-      },
+      zones = Constants.Zones.MetroArea,
       speed = Random.nextDouble() * 25.0,
       timestamp = System.currentTimeMillis()
     )

@@ -10,7 +10,7 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment
 
 class PolicyGenerator extends GeneratorFunction[java.lang.Long, Policy] {
   def map(t: java.lang.Long): Policy =
-    Constants.Policies.DowntownScooterSpeedPolicy
+    Constants.Policies.DowntownSpeedPolicy
 }
 
 object PolicyGenerator {
