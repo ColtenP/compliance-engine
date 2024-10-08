@@ -74,3 +74,24 @@ case class PolicyMatchKey(
                            policyId: UUID,
                            vehicleId: UUID
                          )
+
+case class SpeedPolicyMatchUpdate(
+  policyId: UUID,
+  vehicleId: UUID,
+  ruleId: UUID,
+  speed: Double,
+  ruleMaximum: Option[Double],
+  ruleMinimum: Option[Double],
+  matched: Boolean,
+  eventTimestamp: Long
+)
+
+case class TimePolicyMatchUpdate(
+  policyId: UUID,
+  vehicleId: UUID,
+  ruleId: UUID,
+  ruleMaximum: Option[Double],
+  ruleMinimum: Option[Double],
+  matched: Boolean,
+  eventTimestamp: Long
+)

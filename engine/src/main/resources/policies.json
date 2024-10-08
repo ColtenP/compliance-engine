@@ -1,25 +1,5 @@
 [
   {
-    "id": "1de4332e-e1ae-47c2-937c-89436bf68a63",
-    "name": "Metro Speed Policy",
-    "description": "",
-    "policyType": "Speed",
-    "rules": [
-      {
-        "id": "1de4332e-e1ae-47c2-937c-89436bf68a63",
-        "name": "Speed Limit",
-        "policyType": "Speed",
-        "units": "kph",
-        "maximum": 150.0,
-        "zones": ["0f808591-0b2b-4478-b1e5-8a7d41b5a4b1"]
-      }
-    ],
-    "startsAt": 0,
-    "matches": {
-      "vehicleTypes": ["Car"]
-    }
-  },
-  {
     "id": "a14be833-b348-4516-b6a8-006b36c41f6f",
     "name": "Downtown Speed Policy",
     "description": "",

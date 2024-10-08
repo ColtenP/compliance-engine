@@ -1,13 +1,13 @@
 package compliance.engine.process
 
-import compliance.engine.models.{Policy, VehicleEvent, VehiclePolicyMatchUpdate}
-import compliance.engine.process.VehicleEventPolicyMatcher.{MATCHED_POLICY_STATE_DESCRIPTOR, POLICY_STATE_DESCRIPTOR, TIMER_STATE_DESCRIPTOR, VEHICLE_EVENT_STATE_DESCRIPTOR}
+import compliance.engine.models.{Policy, SpeedPolicyMatchUpdate, TimePolicyMatchUpdate, VehicleEvent, VehiclePolicyMatchUpdate}
+import compliance.engine.process.VehicleEventPolicyMatcher.{MATCHED_POLICY_STATE_DESCRIPTOR, POLICY_STATE_DESCRIPTOR, SPEED_POLICY_MATCHES, TIMER_STATE_DESCRIPTOR, TIME_POLICY_MATCHES, VEHICLE_EVENT_STATE_DESCRIPTOR}
 import compliance.engine.traits.Loggable
 import org.apache.flink.api.common.state._
 import org.apache.flink.api.common.typeinfo.TypeInformation
 import org.apache.flink.configuration.Configuration
 import org.apache.flink.streaming.api.functions.co.KeyedBroadcastProcessFunction
-import org.apache.flink.util.{Collector, ExceptionUtils}
+import org.apache.flink.util.{Collector, ExceptionUtils, OutputTag}
 
 import java.time.Duration
 import java.util.UUID
@@ -48,25 +48,67 @@ class VehicleEventPolicyMatcher(deviceTimeout: Duration = Duration.ofDays(2))
         .diff(matchedPolicies.map(_.id).toSet)
         .flatMap(unmatchedPolicyId => Option(ctx.getBroadcastState(POLICY_STATE_DESCRIPTOR).get(unmatchedPolicyId)))
         .foreach { unmatchedPolicy =>
-          out.collect(
-            VehiclePolicyMatchUpdate(
-              vehicleEvent = event,
-              policy = unmatchedPolicy,
-              matched = false
+          unmatchedPolicy.policyType match {
+            case "Speed" => ctx.output(
+              SPEED_POLICY_MATCHES,
+              SpeedPolicyMatchUpdate(
+                policyId = unmatchedPolicy.id,
+                vehicleId = event.vehicleId,
+                ruleId = unmatchedPolicy.rules.head.id,
+                speed = event.speed,
+                ruleMaximum = None,
+                ruleMinimum = None,
+                matched = false,
+                eventTimestamp = event.timestamp
+              )
             )
-          )
+            case "Time" => ctx.output(
+              TIME_POLICY_MATCHES,
+              TimePolicyMatchUpdate(
+                policyId = unmatchedPolicy.id,
+                vehicleId = event.vehicleId,
+                ruleId = unmatchedPolicy.rules.head.id,
+                ruleMaximum = None,
+                ruleMinimum = None,
+                matched = false,
+                eventTimestamp = event.timestamp
+              )
+            )
+            case _ =>
+          }
         }
     }
 
     // For all of the policies that this event matched, emit a matched event
     matchedPolicies.foreach { policy =>
-      out.collect(
-        VehiclePolicyMatchUpdate(
-          vehicleEvent = event,
-          policy = policy,
-          matched = true
+      policy.policyType match {
+        case "Speed" => ctx.output(
+          SPEED_POLICY_MATCHES,
+          SpeedPolicyMatchUpdate(
+            policyId = policy.id,
+            vehicleId = event.vehicleId,
+            ruleId = policy.rules.head.id,
+            speed = event.speed,
+            ruleMaximum = policy.rules.head.maximum,
+            ruleMinimum = policy.rules.head.minimum,
+            matched = true,
+            eventTimestamp = event.timestamp
+          )
         )
-      )
+        case "Time" => ctx.output(
+          TIME_POLICY_MATCHES,
+          TimePolicyMatchUpdate(
+            policyId = policy.id,
+            vehicleId = event.vehicleId,
+            ruleId = policy.rules.head.id,
+            ruleMaximum = policy.rules.head.maximum,
+            ruleMinimum = policy.rules.head.minimum,
+            matched = true,
+            eventTimestamp = event.timestamp
+          )
+        )
+        case _ =>
+      }
     }
 
     vehicleEventState.update(event)
@@ -165,4 +207,9 @@ object VehicleEventPolicyMatcher {
     "TimerState",
     TypeInformation.of(classOf[Long])
   )
+
+  val SPEED_POLICY_MATCHES =
+    new OutputTag[SpeedPolicyMatchUpdate]("SpeedPolicyMatch", TypeInformation.of(classOf[SpeedPolicyMatchUpdate]))
+  val TIME_POLICY_MATCHES =
+    new OutputTag[TimePolicyMatchUpdate]("TimePolicyMatch", TypeInformation.of(classOf[TimePolicyMatchUpdate]))
 }

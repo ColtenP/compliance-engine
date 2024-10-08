@@ -1,6 +1,6 @@
 package compliance.engine.window.speed
 
-import compliance.engine.models.{PolicyMatchKey, PolicyViolation, VehiclePolicyMatchUpdate}
+import compliance.engine.models.{PolicyMatchKey, PolicyViolation, SpeedPolicyMatchUpdate}
 import compliance.engine.traits.Loggable
 import org.apache.flink.streaming.api.functions.windowing.ProcessWindowFunction
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow
@@ -10,30 +10,24 @@ import java.lang
 import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 
 class SpeedViolationProcessWindowFunction
-  extends ProcessWindowFunction[VehiclePolicyMatchUpdate, PolicyViolation, PolicyMatchKey, TimeWindow]
+  extends ProcessWindowFunction[SpeedPolicyMatchUpdate, PolicyViolation, PolicyMatchKey, TimeWindow]
     with Loggable {
   def process(
                key: PolicyMatchKey,
-               context: ProcessWindowFunction[VehiclePolicyMatchUpdate, PolicyViolation, PolicyMatchKey, TimeWindow]#Context,
-               elements: lang.Iterable[VehiclePolicyMatchUpdate],
+               context: ProcessWindowFunction[SpeedPolicyMatchUpdate, PolicyViolation, PolicyMatchKey, TimeWindow]#Context,
+               elements: lang.Iterable[SpeedPolicyMatchUpdate],
                out: Collector[PolicyViolation]
              ): Unit = {
-    val matches = elements.asScala.toSeq.sortBy(_.vehicleEvent.timestamp)
+    val matches = elements.asScala.toSeq.sortBy(_.eventTimestamp)
 
     // If there are no matches, then you cannot create a violation
     if (matches.isEmpty) return
 
-    val startOption = matches
-      .find(m => m.policy.findFirstRuleInViolation(m.vehicleEvent).isDefined)
-      .map(_.vehicleEvent.timestamp)
-    val endOption = matches
-      .reverse
-      .find(m => m.policy.findFirstRuleInViolation(m.vehicleEvent).isDefined)
-      .map(_.vehicleEvent.timestamp)
+    val startOption = matches.headOption.map(_.eventTimestamp)
 
-    if (startOption.isDefined && endOption.isDefined) {
+    if (startOption.isDefined) {
       val start = startOption.get
-      val end = endOption.get
+      val end = context.window().getEnd
 
       if (start <= end) {
         out.collect(PolicyViolation(

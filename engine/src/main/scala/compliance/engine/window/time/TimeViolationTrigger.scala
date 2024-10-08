@@ -1,12 +1,12 @@
 package compliance.engine.window.time
 
-import compliance.engine.models.VehiclePolicyMatchUpdate
+import compliance.engine.models.TimePolicyMatchUpdate
 import compliance.engine.traits.Loggable
 import org.apache.flink.streaming.api.windowing.triggers.{Trigger, TriggerResult}
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow
 
-case class TimeViolationTrigger() extends Trigger[VehiclePolicyMatchUpdate, TimeWindow] with Loggable {
-  def onElement(element: VehiclePolicyMatchUpdate, timestamp: Long, window: TimeWindow, ctx: Trigger.TriggerContext): TriggerResult =
+case class TimeViolationTrigger() extends Trigger[TimePolicyMatchUpdate, TimeWindow] with Loggable {
+  def onElement(element: TimePolicyMatchUpdate, timestamp: Long, window: TimeWindow, ctx: Trigger.TriggerContext): TriggerResult =
     if (element.matched) {
       TriggerResult.CONTINUE
     } else {

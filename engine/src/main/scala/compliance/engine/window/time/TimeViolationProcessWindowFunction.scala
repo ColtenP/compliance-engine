@@ -1,6 +1,6 @@
 package compliance.engine.window.time
 
-import compliance.engine.models.{PolicyMatchKey, PolicyViolation, VehiclePolicyMatchUpdate}
+import compliance.engine.models.{PolicyMatchKey, PolicyViolation, TimePolicyMatchUpdate}
 import compliance.engine.traits.Loggable
 import org.apache.flink.streaming.api.functions.windowing.ProcessWindowFunction
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow
@@ -10,25 +10,25 @@ import java.lang
 import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 
 class TimeViolationProcessWindowFunction
-  extends ProcessWindowFunction[VehiclePolicyMatchUpdate, PolicyViolation, PolicyMatchKey, TimeWindow]
+  extends ProcessWindowFunction[TimePolicyMatchUpdate, PolicyViolation, PolicyMatchKey, TimeWindow]
     with Loggable {
   def process(
                key: PolicyMatchKey,
-               context: ProcessWindowFunction[VehiclePolicyMatchUpdate, PolicyViolation, PolicyMatchKey, TimeWindow]#Context,
-               elements: lang.Iterable[VehiclePolicyMatchUpdate],
+               context: ProcessWindowFunction[TimePolicyMatchUpdate, PolicyViolation, PolicyMatchKey, TimeWindow]#Context,
+               elements: lang.Iterable[TimePolicyMatchUpdate],
                out: Collector[PolicyViolation]
              ): Unit = {
-    val matches = elements.asScala.toSeq.sortBy(_.vehicleEvent.timestamp)
+    val matches = elements.asScala.toSeq.sortBy(_.eventTimestamp)
 
     // If there are no matches, then you cannot create a violation
     if (matches.isEmpty) return
 
     val startOption = matches
       .headOption
-      .map(_.vehicleEvent.timestamp)
+      .map(_.eventTimestamp)
     val endOption = matches
       .lastOption
-      .map(_.vehicleEvent.timestamp)
+      .map(_.eventTimestamp)
 
     if (startOption.isDefined && endOption.isDefined) {
       val start = startOption.get
@@ -38,12 +38,10 @@ class TimeViolationProcessWindowFunction
         val duration = end - start
 
         // If no rule was violated, then there's no violation
-        val violatedRule = matches.head.policy.rules.find { rule =>
-          rule.minimum.exists(_ > duration) ||
-            rule.maximum.exists(_ < duration)
-        }
+        val didViolationOccur = matches.head.ruleMaximum.exists(_ <= duration) ||
+          matches.head.ruleMaximum.exists(_ >= duration)
 
-        if (violatedRule.nonEmpty) {
+        if (didViolationOccur) {
           out.collect(PolicyViolation(
             policyId = key.policyId,
             vehicleId = key.vehicleId,

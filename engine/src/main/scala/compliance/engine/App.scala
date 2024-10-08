@@ -1,27 +1,41 @@
 package compliance.engine
 
-import compliance.engine.models.PolicyType.{Speed, Time => TimePolicyType}
-import compliance.engine.models.{Policy, PolicyMatchKey, VehicleEvent, VehiclePolicyMatchUpdate}
+import compliance.engine.models._
 import compliance.engine.process.VehicleEventPolicyMatcher
 import compliance.engine.sources.FileSourceUtil
-import compliance.engine.window.speed.{SpeedViolationProcessWindowFunction, SpeedViolationTrigger}
+import compliance.engine.window.speed.{SpeedViolationProcessWindowFunction, SpeedViolationReducer, SpeedViolationTrigger}
 import compliance.engine.window.time.{TimeViolationProcessWindowFunction, TimeViolationTrigger}
-import org.apache.flink.contrib.streaming.state.EmbeddedRocksDBStateBackend
+import org.apache.flink.api.common.eventtime.{SerializableTimestampAssigner, WatermarkStrategy}
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment
 import org.apache.flink.streaming.api.windowing.assigners.EventTimeSessionWindows
 import org.apache.flink.streaming.api.windowing.time.Time
+
+import java.time.Duration
 
 object App {
    def main(args: Array[String]): Unit = {
       val env = StreamExecutionEnvironment.getExecutionEnvironment
 
-      env.setStateBackend(new EmbeddedRocksDBStateBackend())
-
       // Create the Sources to be used
 //      val policies = PolicyGenerator.create(env).broadcast(VehicleEventPolicyMatcher.POLICY_STATE_DESCRIPTOR)
 //      val vehicleEvents = VehicleEventGenerator.create(env)
-      val policies = env.fromElements(FileSourceUtil.fromFile[Policy]("policies.json"):_ *).broadcast(VehicleEventPolicyMatcher.POLICY_STATE_DESCRIPTOR)
+      val policies = env.fromElements(FileSourceUtil.fromFile[Policy]("policies.json"):_ *)
+        .assignTimestampsAndWatermarks(
+           WatermarkStrategy
+             .forBoundedOutOfOrderness(Duration.ZERO)
+             .withTimestampAssigner(new SerializableTimestampAssigner[Policy] {
+                def extractTimestamp(t: Policy, l: Long): Long = Long.MaxValue
+             })
+        )
+        .broadcast(VehicleEventPolicyMatcher.POLICY_STATE_DESCRIPTOR)
       val vehicleEvents = env.fromElements(FileSourceUtil.fromFile[VehicleEvent]("events.json"):_ *)
+        .assignTimestampsAndWatermarks(
+           WatermarkStrategy
+             .forMonotonousTimestamps()
+             .withTimestampAssigner(new SerializableTimestampAssigner[VehicleEvent] {
+                def extractTimestamp(t: VehicleEvent, l: Long): Long = t.timestamp
+             })
+        )
 
       // Match Policies with Vehicle Events
       val policyEventMatches = vehicleEvents
@@ -31,18 +45,16 @@ object App {
         .name("event-policy-matcher")
 
       val speedViolations = policyEventMatches
-        .filter(_.policy.policyType == Speed)
-        .name("speed-policy-matches")
-        .keyBy((policyMatch: VehiclePolicyMatchUpdate) => PolicyMatchKey(policyMatch.policy.id, policyMatch.vehicleEvent.vehicleId))
+        .getSideOutput(VehicleEventPolicyMatcher.SPEED_POLICY_MATCHES)
+        .keyBy((policyMatch: SpeedPolicyMatchUpdate) => PolicyMatchKey(policyMatch.policyId, policyMatch.vehicleId))
         .window(EventTimeSessionWindows.withGap(Time.minutes(10)))
         .trigger(new SpeedViolationTrigger)
-        .process(new SpeedViolationProcessWindowFunction)
+        .reduce(new SpeedViolationReducer, new SpeedViolationProcessWindowFunction)
         .name("speed-violation-session-window")
 
       val timeViolations = policyEventMatches
-        .filter(_.policy.policyType == TimePolicyType)
-        .name("time-policy-matches")
-        .keyBy((policyMatch: VehiclePolicyMatchUpdate) => PolicyMatchKey(policyMatch.policy.id, policyMatch.vehicleEvent.vehicleId))
+        .getSideOutput(VehicleEventPolicyMatcher.TIME_POLICY_MATCHES)
+        .keyBy((policyMatch: TimePolicyMatchUpdate) => PolicyMatchKey(policyMatch.policyId, policyMatch.vehicleId))
         .window(EventTimeSessionWindows.withGap(Time.minutes(10)))
         .trigger(new TimeViolationTrigger)
         .process(new TimeViolationProcessWindowFunction)
