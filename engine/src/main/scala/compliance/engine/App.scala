@@ -2,7 +2,8 @@ package compliance.engine
 
 import compliance.engine.models._
 import compliance.engine.process.VehicleEventPolicyMatcher
-import compliance.engine.sources.FileSourceUtil
+import compliance.engine.sinks.DummySink
+import compliance.engine.sources.{ArraySource, FileSourceUtil}
 import compliance.engine.window.speed.{SpeedViolationProcessWindowFunction, SpeedViolationReducer, SpeedViolationTrigger}
 import compliance.engine.window.time.{TimeViolationProcessWindowFunction, TimeViolationTrigger}
 import org.apache.flink.api.common.eventtime.{SerializableTimestampAssigner, WatermarkStrategy}
@@ -17,9 +18,13 @@ object App {
       val env = StreamExecutionEnvironment.getExecutionEnvironment
 
       // Create the Sources to be used
-//      val policies = PolicyGenerator.create(env).broadcast(VehicleEventPolicyMatcher.POLICY_STATE_DESCRIPTOR)
-//      val vehicleEvents = VehicleEventGenerator.create(env)
-      val policies = env.fromElements(FileSourceUtil.fromFile[Policy]("policies.json"):_ *)
+      val policies = env.addSource(
+          new ArraySource[Policy](
+            FileSourceUtil.fromFile[Policy]("policies.json"),
+            classOf[Policy]
+          ),
+          "policies"
+        )
         .assignTimestampsAndWatermarks(
            WatermarkStrategy
              .forBoundedOutOfOrderness(Duration.ZERO)
@@ -28,7 +33,14 @@ object App {
              })
         )
         .broadcast(VehicleEventPolicyMatcher.POLICY_STATE_DESCRIPTOR)
-      val vehicleEvents = env.fromElements(FileSourceUtil.fromFile[VehicleEvent]("events.json"):_ *)
+
+      val vehicleEvents = env.addSource(
+          new ArraySource[VehicleEvent](
+            FileSourceUtil.fromFile[VehicleEvent]("events.json"),
+            classOf[VehicleEvent]
+          ),
+          "vehicle-events"
+        )
         .assignTimestampsAndWatermarks(
            WatermarkStrategy
              .forMonotonousTimestamps()
@@ -60,8 +72,8 @@ object App {
         .process(new TimeViolationProcessWindowFunction)
         .name("time-violation-session-window")
 
-      speedViolations.print("speed-violations")
-      timeViolations.print("time-violations")
+     speedViolations.sinkTo(new DummySink[PolicyViolation]).name("speed-violations")
+     timeViolations.sinkTo(new DummySink[PolicyViolation]).name("time-violations")
 
       env.execute("Vehicle Event Policy Compliance Engine")
    }

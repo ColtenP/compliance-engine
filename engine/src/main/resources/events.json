@@ -1008,6 +1008,16 @@
     "timestamp": 1727268795000
   },
   {
+    "id": "df20f1fd-5428-4758-ac6d-5ae2533ac50d",
+    "vehicleId": "6e4bb54a-f55c-4c23-ba55-43f6b8684013",
+    "vehicleType": "Car",
+    "zones": [
+      "0f808591-0b2b-4478-b1e5-8a7d41b5a4b1"
+    ],
+    "speed": 180.0,
+    "timestamp": 1727268795000
+  },
+  {
     "id": "afb90754-1a8a-4bdf-b520-8883d2d53d82",
     "vehicleId": "3168976d-a5c9-40c9-a2f6-cb9388523c79",
     "vehicleType": "Car",
@@ -1018,6 +1028,16 @@
     "timestamp": 1727268810000
   },
   {
+    "id": "afb90754-1a8a-4bdf-b520-8883d2d53d82",
+    "vehicleId": "6e4bb54a-f55c-4c23-ba55-43f6b8684013",
+    "vehicleType": "Car",
+    "zones": [
+      "0f808591-0b2b-4478-b1e5-8a7d41b5a4b1"
+    ],
+    "speed": 183.22,
+    "timestamp": 1727268810000
+  },
+  {
     "id": "02b32082-5929-4236-b243-cc06d27b45c9",
     "vehicleId": "3168976d-a5c9-40c9-a2f6-cb9388523c79",
     "vehicleType": "Car",
@@ -1025,6 +1045,16 @@
       "0f808591-0b2b-4478-b1e5-8a7d41b5a4b1"
     ],
     "speed": 15295.230837157706,
+    "timestamp": 1727268825000
+  },
+  {
+    "id": "02b32082-5929-4236-b243-cc06d27b45c9",
+    "vehicleId": "6e4bb54a-f55c-4c23-ba55-43f6b8684013",
+    "vehicleType": "Car",
+    "zones": [
+      "0f808591-0b2b-4478-b1e5-8a7d41b5a4b1"
+    ],
+    "speed": 80.0,
     "timestamp": 1727268825000
   },
   {
@@ -1302,6 +1332,17 @@
     "timestamp": 1727269230000
   },
   {
+    "id": "8bad7003-7ed4-4cbc-8087-5cb2280b1881",
+    "vehicleId": "9296e821-e0aa-4975-bf20-543719b65143",
+    "vehicleType": "Car",
+    "zones": [
+      "0f808591-0b2b-4478-b1e5-8a7d41b5a4b1",
+      "d7a6d6ca-84c4-450b-9a88-15ebfa74a02d"
+    ],
+    "speed": 180.22,
+    "timestamp": 1727269230000
+  },
+  {
     "id": "892196f2-3d6e-4936-9527-b11ef049e423",
     "vehicleId": "3168976d-a5c9-40c9-a2f6-cb9388523c79",
     "vehicleType": "Car",
@@ -1324,6 +1365,17 @@
     "timestamp": 1727269260000
   },
   {
+    "id": "1058aa6d-8d9c-43d8-bf74-33009c5c84df",
+    "vehicleId": "9296e821-e0aa-4975-bf20-543719b65143",
+    "vehicleType": "Car",
+    "zones": [
+      "0f808591-0b2b-4478-b1e5-8a7d41b5a4b1",
+      "d7a6d6ca-84c4-450b-9a88-15ebfa74a02d"
+    ],
+    "speed": 180.22,
+    "timestamp": 1727269260000
+  },
+  {
     "id": "d92e6f54-72c4-44a3-bdad-a2250f387d0c",
     "vehicleId": "3168976d-a5c9-40c9-a2f6-cb9388523c79",
     "vehicleType": "Car",
@@ -1343,6 +1395,17 @@
       "d7a6d6ca-84c4-450b-9a88-15ebfa74a02d"
     ],
     "speed": 21367.843178503023,
+    "timestamp": 1727269290000
+  },
+  {
+    "id": "d409ad85-0e06-4458-8d17-cc7269fdb6df",
+    "vehicleId": "9296e821-e0aa-4975-bf20-543719b65143",
+    "vehicleType": "Car",
+    "zones": [
+      "0f808591-0b2b-4478-b1e5-8a7d41b5a4b1",
+      "d7a6d6ca-84c4-450b-9a88-15ebfa74a02d"
+    ],
+    "speed": 80.0,
     "timestamp": 1727269290000
   },
   {
@@ -2787,6 +2850,17 @@
     "timestamp": 1727271255000
   },
   {
+    "id": "2202bdbb-390a-4caa-99ec-5bcd689150fd",
+    "vehicleId": "c29dff86-4286-4e6c-a684-ad7057e71acb",
+    "vehicleType": "Car",
+    "zones": [
+      "0f808591-0b2b-4478-b1e5-8a7d41b5a4b1",
+      "d7a6d6ca-84c4-450b-9a88-15ebfa74a02d"
+    ],
+    "speed": 180.22,
+    "timestamp": 1727271255000
+  },
+  {
     "id": "e5c83fac-05b7-42c8-bf23-f59c1fa04b29",
     "vehicleId": "3168976d-a5c9-40c9-a2f6-cb9388523c79",
     "vehicleType": "Car",
@@ -2798,6 +2872,17 @@
     "timestamp": 1727271270000
   },
   {
+    "id": "e5c83fac-05b7-42c8-bf23-f59c1fa04b29",
+    "vehicleId": "c29dff86-4286-4e6c-a684-ad7057e71acb",
+    "vehicleType": "Car",
+    "zones": [
+      "0f808591-0b2b-4478-b1e5-8a7d41b5a4b1",
+      "d7a6d6ca-84c4-450b-9a88-15ebfa74a02d"
+    ],
+    "speed": 180.22,
+    "timestamp": 1727271270000
+  },
+  {
     "id": "93a70844-74dc-4276-b5af-ee84f4d3fea0",
     "vehicleId": "3168976d-a5c9-40c9-a2f6-cb9388523c79",
     "vehicleType": "Car",
@@ -2806,6 +2891,17 @@
       "d7a6d6ca-84c4-450b-9a88-15ebfa74a02d"
     ],
     "speed": 39659.42717681528,
+    "timestamp": 1727271285000
+  },
+  {
+    "id": "93a70844-74dc-4276-b5af-ee84f4d3fea0",
+    "vehicleId": "c29dff86-4286-4e6c-a684-ad7057e71acb",
+    "vehicleType": "Car",
+    "zones": [
+      "0f808591-0b2b-4478-b1e5-8a7d41b5a4b1",
+      "d7a6d6ca-84c4-450b-9a88-15ebfa74a02d"
+    ],
+    "speed": 2.22,
     "timestamp": 1727271285000
   },
   {
@@ -3359,6 +3455,17 @@
     "timestamp": 1727272035000
   },
   {
+    "id": "8e547827-4ad1-4687-9e85-ed1f9d0e133a",
+    "vehicleId": "c29dff86-4286-4e6c-a684-ad7057e71acb",
+    "vehicleType": "Car",
+    "zones": [
+      "0f808591-0b2b-4478-b1e5-8a7d41b5a4b1",
+      "d7a6d6ca-84c4-450b-9a88-15ebfa74a02d"
+    ],
+    "speed": 200.22,
+    "timestamp": 1727272035000
+  },
+  {
     "id": "67eb7bbb-4efd-463b-9b2f-e9ade5b85c5e",
     "vehicleId": "3168976d-a5c9-40c9-a2f6-cb9388523c79",
     "vehicleType": "Car",
@@ -3370,6 +3477,17 @@
     "timestamp": 1727272050000
   },
   {
+    "id": "67eb7bbb-4efd-463b-9b2f-e9ade5b85c5e",
+    "vehicleId": "c29dff86-4286-4e6c-a684-ad7057e71acb",
+    "vehicleType": "Car",
+    "zones": [
+      "0f808591-0b2b-4478-b1e5-8a7d41b5a4b1",
+      "d7a6d6ca-84c4-450b-9a88-15ebfa74a02d"
+    ],
+    "speed": 200.22,
+    "timestamp": 1727272050000
+  },
+  {
     "id": "64a813ca-cb72-4d5a-8484-f379a11f4381",
     "vehicleId": "3168976d-a5c9-40c9-a2f6-cb9388523c79",
     "vehicleType": "Car",
@@ -3378,6 +3496,17 @@
       "d7a6d6ca-84c4-450b-9a88-15ebfa74a02d"
     ],
     "speed": 39651.21526158101,
+    "timestamp": 1727272065000
+  },
+  {
+    "id": "64a813ca-cb72-4d5a-8484-f379a11f4381",
+    "vehicleId": "c29dff86-4286-4e6c-a684-ad7057e71acb",
+    "vehicleType": "Car",
+    "zones": [
+      "0f808591-0b2b-4478-b1e5-8a7d41b5a4b1",
+      "d7a6d6ca-84c4-450b-9a88-15ebfa74a02d"
+    ],
+    "speed": 2.22,
     "timestamp": 1727272065000
   },
   {
@@ -7424,6 +7553,17 @@
     "timestamp": 1727277585000
   },
   {
+    "id": "b8193991-c77d-4a02-847a-61a9d26f7356",
+    "vehicleId": "dc36fee1-8381-42e3-8b95-33f694b182b0",
+    "vehicleType": "Car",
+    "zones": [
+      "0f808591-0b2b-4478-b1e5-8a7d41b5a4b1",
+      "f7998d01-0026-496b-8634-7682cf71b2eb"
+    ],
+    "speed": 23175.94405615143,
+    "timestamp": 1727277585000
+  },
+  {
     "id": "3fd583a3-b9ed-49f7-b083-ad1cc14a976b",
     "vehicleId": "3168976d-a5c9-40c9-a2f6-cb9388523c79",
     "vehicleType": "Car",
@@ -7435,8 +7575,30 @@
     "timestamp": 1727277600000
   },
   {
+    "id": "3fd583a3-b9ed-49f7-b083-ad1cc14a976b",
+    "vehicleId": "dc36fee1-8381-42e3-8b95-33f694b182b0",
+    "vehicleType": "Car",
+    "zones": [
+      "0f808591-0b2b-4478-b1e5-8a7d41b5a4b1",
+      "f7998d01-0026-496b-8634-7682cf71b2eb"
+    ],
+    "speed": 23115.866449521498,
+    "timestamp": 1727277600000
+  },
+  {
     "id": "0bf76a2a-cd61-444b-bf48-60315e3b2b53",
     "vehicleId": "3168976d-a5c9-40c9-a2f6-cb9388523c79",
+    "vehicleType": "Car",
+    "zones": [
+      "0f808591-0b2b-4478-b1e5-8a7d41b5a4b1",
+      "f7998d01-0026-496b-8634-7682cf71b2eb"
+    ],
+    "speed": 23055.789469950847,
+    "timestamp": 1727277615000
+  },
+  {
+    "id": "0bf76a2a-cd61-444b-bf48-60315e3b2b53",
+    "vehicleId": "dc36fee1-8381-42e3-8b95-33f694b182b0",
     "vehicleType": "Car",
     "zones": [
       "0f808591-0b2b-4478-b1e5-8a7d41b5a4b1",
